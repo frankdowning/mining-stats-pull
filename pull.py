@@ -18,7 +18,8 @@ def get_dashboard_data(address):
 
 def store_dashboard_data(collection, address, data):
     try:
-        collection.insert_one(data)
+        id = collection.insert_one(data).inserted_id
+        print(f"Wrote data for {id}")
     except Exception as e:
         print(f"Failed to store data for {address} - {e}")
 
@@ -27,6 +28,7 @@ print("Start")
 MONGO_URL = os.environ['MONGO_URL']
 DB_TIER = os.environ['DB_TIER']
 client = MongoClient(MONGO_URL)
+print(f"Connected to {MONGO_URL} in {DB_TIER}")
 db = client[DB_TIER]
 
 addresses = db.addresses
@@ -37,7 +39,7 @@ for address in addresses.find():
 
     if data['status'] == 'OK':
         store_dashboard_data(mining_stats, address, data)
-        print(f"Successfuly stored data for {address}!")
+        print(f"Successfuly stored data for {address['address']}!")
     else:
         print(f"Failed to get data for {address} - {data['status']}")
 
